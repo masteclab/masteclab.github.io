@@ -51,8 +51,6 @@ table {
 	border-spacing: 0;
 }
 
-
-
 body {
 	-webkit-text-size-adjust: none;
 }
@@ -3199,17 +3197,6 @@ input, select, textarea {
 		-ms-transition: opacity 0.75s ease-in-out, -ms-transform 0.75s ease-in-out;
 		transition: opacity 0.75s ease-in-out, transform 0.75s ease-in-out;
 	}
-
-
-	.logo-container {
-	            text-align: center; /* Centra la imagen horizontalmente */
-	            margin-top: 50px; /* Añade un espacio superior */
-	        }
-	
-	        .logo-container img {
-	            width: 200px; /* Ajusta el ancho del logo */
-	            height: auto; /* Mantiene la proporción del logo */
-	        }
 
 		.banner.onload-image-fade-right .image img {
 			-moz-transition: opacity 0.75s ease-in-out;
