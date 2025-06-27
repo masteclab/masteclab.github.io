@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>#tecnun</title>
+  <style>
+      body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        
+          }
+      .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+      }
+      h1 {
+          margin-bottom: 20px;
+          font-size: 24px;
+      }
+      .foco {
+          width: 100px;
+          height: 100px;
+      }
+    button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+  </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="content" role="main">
+            <img src="https://api.talentclue.com/system/files/00._marca_tecnun_red_1696928489.png" />      
+            <h1 class="title">Desde 1961</h1>
+            <h1 class="title2">#tecnun</h1>
+
+            <div class="container">
+                <h1>Enviar Respuesta</h1>
+                <form id="encuestaForm">
+                    <input type="text" id="firstName" placeholder="Escribe tu nombre" required>
+                    <br><br>
+                  <input type="text" id="lastName" placeholder="Escribe tu apellido" required>
+                    <br><br>
+                  <button type="submit">Enviar</button>
+                </form>
+                <div id="mensaje"></div>
+            </div>
+
+            <h2 class="title3">
+              <br><br>
+                Visualización de datos en formato JSON: <br> 
+                <a href="https://dsa-iot.firebaseio.com/.json" target="_blank">https://dsa-iot.firebaseio.com/.json</a>
+            <br><br>
+          </h2>
+
+            <div class="container">
+                <h1>Control de Bombilla</h1>
+                
+                <!-- Radio buttons para encender y apagar -->
+                <input type="radio" id="encender" name="control" value="encendido">
+                <label for="encender">Encender</label>
+                <br><br>
+                <input type="radio" id="apagar" name="control" value="apagado">
+                <label for="apagar">Apagar</label>
+                <br><br>
+
+                <h1>Estado de la Bombilla</h1>
+                <img id="foco" src="https://cdn-icons-png.freepik.com/128/251/251734.png" alt="Foco" class="foco">
+                <div id="mensajeFoco"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseUrl = 'https://dsa-iot.firebaseio.com/.json';
+
+        // Función para enviar datos a Firebase
+        function enviarDatos(control) {
+            return fetch(firebaseUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ control })
+            });
+        }
+
+        // Manejo del formulario de envío de nombres
+        document.getElementById('encuestaForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            fetch('https://dsa-iot.firebaseio.com/respuestas.json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ first: firstName, last: lastName })
+            })
+            .then(response => response.ok ? response.json() : Promise.reject('Error en la respuesta del servidor'))
+            .then(() => {
+                document.getElementById('mensaje').innerText = 'Respuesta enviada exitosamente!';
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('mensaje').innerText = 'Error al enviar la respuesta.';
+            });
+        });
+
+        // Actualiza la imagen del foco según el estado
+        function actualizarFoco(estado) {
+            const foco = document.getElementById('foco');
+            foco.src = estado === 'encendido' ? 'https://cdn-icons-png.freepik.com/128/254/254214.png' : 'https://cdn-icons-png.freepik.com/128/251/251734.png';
+        }
+      
+        // Cargar estado del foco al inicio
+        window.onload = leerEstadoFoco;
+        // Actualizar
+        setInterval(leerEstadoFoco, 200);
+      
+        // Llama a la API para obtener el estado del foco
+        function leerEstadoFoco() {
+            fetch(firebaseUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const estado = data.control;
+                    actualizarFoco(estado);
+                    // Establece el estado del radio button basado en el valor en Firebase
+                    document.getElementById(estado === 'encendido' ? 'encender' : 'apagar').checked = true;
+                })
+                .catch(error => {
+                    console.error('Error al leer el estado del foco:', error);
+                    document.getElementById('mensajeFoco').innerText = 'Error al leer el estado del foco.';
+                });
+        }
+
+        // Cambia el estado del foco a través de los radio buttons
+        const radioButtons = document.getElementsByName('control');
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const control = this.value;
+                enviarDatos(control)
+                    .then(() => {
+                        document.getElementById('mensaje2').innerText = 'Estado de control actualizado!';
+                        actualizarFoco(control);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('mensaje2').innerText = 'Error al actualizar el estado.';
+                    });
+            });
+        });
+
+    </script>
+</body>
+</html>

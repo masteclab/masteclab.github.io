@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#tecnun</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+      .foco {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+  
+      <div class="wrapper">
+      <div class="content" role="main">
+        <img
+          src="https://api.talentclue.com/system/files/00._marca_tecnun_red_1696928489.png"
+        />      
+        
+        <h1 class="title">Desde 1961</h1>
+        <h1 class="title2">#tecnun</h1>
+
+  
+    <div class="container">
+        <h1>Enviar Respuesta</h1>
+        <form id="encuestaForm">
+            <input type="text" id="firstName" placeholder="Escribe tu nombre" required>
+            <input type="text" id="lastName" placeholder="Escribe tu apellido" required>
+            <button type="submit">Enviar</button>
+        </form>
+        <div id="mensaje"></div>
+    
+      
+      
+    </div>
+        <div>
+         <br>
+        </div> </div>
+
+
+<h2 class="title3">Visualización de datos en formato JSON: <br> 
+    <a href="https://dsa-iot.firebaseio.com/.json" target="_blank">https://dsa-iot.firebaseio.com/.json</a>
+</h2>
+
+
+ <!-- Espaciado adicional debajo del formulario -->
+        
+      
+    <div class="container">
+        <h1>Control</h1>
+        <form id="encuestaForm2">
+            <input type="text" id="control" placeholder="apagar/encender" required>
+            <button type="submit2">Enviar</button>
+        </form>
+        <div id="mensaje2"></div>
+      
+      
+      <h1>Estado de la Bombilla</h1>
+                <img id="foco" src="https://cdn-icons-png.freepik.com/128/251/251734.png" alt="Foco" class="foco">
+                <div id="mensajeFoco"></div>
+    
+
+      
+        
+
+        
+<script>
+    // Manejo del formulario de envío de nombres
+    document.getElementById('encuestaForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evitar el envío del formulario por defecto
+
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+
+        // URL de tu base de datos en Firebase
+        const firebaseUrl = 'https://dsa-iot.firebaseio.com/respuestas.json';
+
+        fetch(firebaseUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ first: firstName, last: lastName })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('mensaje').innerText = 'Respuesta enviada exitosamente!';
+            document.getElementById('firstName').value = ''; // Limpiar el campo de entrada
+            document.getElementById('lastName').value = ''; // Limpiar el campo de entrada
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('mensaje').innerText = 'Error al enviar la respuesta.';
+        });
+    });
+
+    // Manejo del formulario de control del foco
+    document.getElementById('encuestaForm2').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evitar el envío del formulario por defecto
+
+        const control = document.getElementById('control').value;
+
+        // Verificar que el campo no esté vacío
+        if (!control) {
+            document.getElementById('mensaje2').innerText = 'Por favor, ingrese un valor.';
+            return;
+        }
+
+        // URL de tu base de datos en Firebase
+        const firebaseUrl = 'https://dsa-iot.firebaseio.com/.json';
+
+        fetch(firebaseUrl, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ control: control }) // Corrección en el paréntesis
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('mensaje2').innerText = 'Enviado exitosamente!';
+            document.getElementById('control').value = ''; // Limpiar el campo de entrada
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('mensaje2').innerText = 'Error al enviar la respuesta.';
+        });
+    });
+
+    // Función para actualizar el estado del foco
+    function actualizarFoco(estado) {
+        const foco = document.getElementById('foco');
+        if (estado === 'encender') {
+            foco.src = 'https://cdn-icons-png.freepik.com/128/254/254214.png';
+        } else if (estado === 'apagar') {
+            foco.src = 'https://cdn-icons-png.freepik.com/128/251/251734.png';
+        }
+    }
+
+    // Función para leer el estado del foco desde Firebase
+    function leerEstadoFoco() {
+        const firebaseUrl = 'https://dsa-iot.firebaseio.com/.json';
+        
+        fetch(firebaseUrl)
+            .then(response => response.json())
+            .then(data => {
+                const estado = data.control; // Suponiendo que el dato está en 'control'
+                actualizarFoco(estado);
+            })
+            .catch(error => {
+                console.error('Error al leer el estado del foco:', error);
+                document.getElementById('mensajeFoco').innerText = 'Error al leer el estado del foco.';
+            });
+    }
+
+    // Llamar a la función para leer el estado del foco al cargar la página
+    window.onload = leerEstadoFoco;
+
+    // Opción: Puedes hacer que se actualice periódicamente
+    setInterval(leerEstadoFoco, 5000); // Actualiza cada 5 segundos
+</script>
+
+
+  
+  
+</body>
+</html>
